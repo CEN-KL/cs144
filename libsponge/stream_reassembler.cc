@@ -24,6 +24,7 @@ StreamReassembler::StreamReassembler(const size_t capacity)
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
 //! contiguous substrings and writes them into the output stream in order.
+//! 注意，此处的eof参数指的是data字符串的最后一个字符是否是整个字节流的末尾
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
     // DUMMY_CODE(data, index, eof);
     if (eof) {
@@ -42,6 +43,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     if (index >= _unass_index) {
         size_t offset = index - _unass_index;
         size_t len_handle = min(len_data, _capacity - _output.buffer_size() - offset);
+        // 需要添加判断，如果有字符被丢弃了，则说明一定读不到eof了，故将_eof设置为false
         if (len_data > len_handle) {
             _eof = false;
         }
@@ -55,6 +57,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     } else if (index + len_data > _unass_index) {
         size_t offset = _unass_index - index;
         size_t len_handle = min(len_data - offset, _capacity - _output.buffer_size());
+        // 需要添加判断，如果有字符被丢弃了，则说明一定读不到eof了，故将_eof设置为false
         if (len_handle < len_data - offset) {
             _eof = false;
         }
