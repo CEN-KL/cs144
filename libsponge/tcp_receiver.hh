@@ -14,6 +14,11 @@
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
 class TCPReceiver {
+    WrappingInt32 _isn;
+    WrappingInt32 _ack;
+    bool _has_syn;
+    bool _eof;
+    uint64_t _end_abs_index;
     //! Our data structure for re-assembling bytes.
     StreamReassembler _reassembler;
 
@@ -25,7 +30,14 @@ class TCPReceiver {
     //!
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
-    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity) {}
+    TCPReceiver(const size_t capacity) 
+      : _isn(WrappingInt32(0))
+      , _ack(WrappingInt32(0))
+      , _has_syn(false)
+      , _eof(false)
+      , _end_abs_index(0)
+      , _reassembler(capacity)
+      , _capacity(capacity) {}
 
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{

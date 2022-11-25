@@ -12,8 +12,8 @@
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
-    size_t _unass_bytes;
-    size_t _unass_index;
+    size_t _unass_bytes;          // unassembled bytes
+    size_t _unass_index;          // the first index unassembled
     std::deque<char> _buffer;
     std::deque<bool> _tag;
     bool _eof;
@@ -52,6 +52,8 @@ class StreamReassembler {
     //! \brief Is the internal state empty (other than the output stream)?
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
+
+    size_t get_unass_index() const { return _unass_index; }
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
