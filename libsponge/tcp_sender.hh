@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <queue>
+#include <map>
 
 //! \brief The "sender" part of a TCP implementation.
 
@@ -15,7 +16,7 @@
 //! segments, keeps track of which segments are still in-flight,
 //! maintains the Retransmission Timer, and retransmits in-flight
 //! segments if the retransmission timer expires.
-class TCPSender {
+class TCPSender { 
   private:
     //! our initial sequence number, the number for our SYN.
     WrappingInt32 _isn;
@@ -25,12 +26,47 @@ class TCPSender {
 
     //! retransmission timer for the connection
     unsigned int _initial_retransmission_timeout;
+    unsigned int _rto = 0;
 
     //! outgoing stream of bytes that have not yet been sent
     ByteStream _stream;
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+
+    // tag for SYN and FIN
+    bool _syn_sent = false;
+    bool _fin_sent = false;
+
+    //! number of bytes sent but not yet acknowleged
+    size_t _bytes_in_flight = 0;
+
+    // 方法1: 记录左右边界 left(ackno) ----- (_next_seqno) ----------------- (right)
+    // 方法2: 记录窗口大小以及空余的空间大小
+    // 初值设为1（见3.4 FAQ）
+    uint64_t _window_size = 1;
+    uint64_t _window_free_size = 1;
+
+    // outstanding TCPSegments <sequence, TCPSegment>
+    // 后续可以尝试用map实现
+    // std::map<uint64_t, TCPSegment> _outstanding{};
+    std::queue<TCPSegment> _outstanding{};
+
+    // 连续重传次数
+    unsigned int _consecutive_retransmissions = 0;
+
+    // !@ timer {
+    bool _timer_is_running = false;
+    size_t _time_elapsed = 0;
+    void start_timer();
+    void stop_timer();
+    // !@}
+
+    void retransmit();
+
+    void send_segment(TCPSegment seg);
+
+    bool is_ack_valid(uint64_t ack);
 
   public:
     //! Initialize a TCPSender
