@@ -29,7 +29,9 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     }  else {
         uint64_t idx = unwrap(header.seqno, _isn, 0);
         // uint64_t ack_idx = unwrap(_ack, _isn, 0);
+        // - 1 是要从 abs_index 变成 stream_idx
         _reassembler.push_substring(seg.payload().copy(), idx - 1 , header.fin);
+        // + 1 是要从stream_idx 变成 abs_index
         _ack = wrap(_reassembler.get_unass_index() + 1, _isn);
         if (_eof && unwrap(_ack, _isn, 0) + 1 == _end_abs_index) {
             _ack = _ack + 1;
