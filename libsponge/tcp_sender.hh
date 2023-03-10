@@ -44,8 +44,10 @@ class TCPSender {
     // 方法1: 记录左右边界 left(ackno) ----- (_next_seqno) ----------------- (right)
     // 方法2: 记录窗口大小以及空余的空间大小
     // 初值设为1（见3.4 FAQ）
-    uint64_t _window_size = 1;
-    uint64_t _window_free_size = 1;
+    // 实际上窗口大小设置为uint16_t就行了 为什么是16位无符号整数，自己去看TCP Segment的结构！！！！
+    // 这里用size_t是为了方便在min里比较
+    size_t _window_size = 1;
+    size_t _window_free_size = 1;
 
     // outstanding TCPSegments <sequence, TCPSegment>
     // 后续可以尝试用map实现

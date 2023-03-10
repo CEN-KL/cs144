@@ -55,10 +55,10 @@ void TCPSender::fill_window() {
             TCPSegment seg;
             // 确定payload的长度
             size_t payload_len = TCPConfig::MAX_PAYLOAD_SIZE;
-            payload_len = min(payload_len, static_cast<size_t>(_window_free_size));
+            payload_len = min(payload_len, _window_free_size);
             payload_len = min(payload_len, stream_in().buffer_size());
             seg.payload() = Buffer{stream_in().read(payload_len)};
-            if (stream_in().eof() && static_cast<size_t>(_window_free_size) > payload_len) {
+            if (stream_in().eof() && _window_free_size > payload_len) {
                 // 如果输入结束且窗口大小大于payload的长度（因为fin本身占一个字节，需要额外1字节的空间），则发送fin
                 seg.header().fin = true;
                 _fin_sent = true;
