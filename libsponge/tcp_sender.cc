@@ -158,11 +158,13 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
 
     // 处理window_size
     if (!_outstanding.empty()) {
-        _window_free_size = ackno_abs + window_size;
-        _window_free_size -= unwrap(_outstanding.front().header().seqno, _isn, _next_seqno) + _bytes_in_flight;
+        // _window_free_size = ackno_abs + window_size;
+        // _window_free_size -= unwrap(_outstanding.front().header().seqno, _isn, _next_seqno) + _bytes_in_flight;
+        size_t delta_between_ack_and_outstanding = unwrap(_outstanding.front().header().seqno, _isn, _next_seqno) - ackno_abs;
+        _window_free_size = window_size - _bytes_in_flight - delta_between_ack_and_outstanding;
     }
 
-    // 如果没有正在发送但为确认的数据，则停止timer
+    // 如果没有正在发送但未确认的数据，则停止timer
     if (!_bytes_in_flight) {
         stop_timer();
     }
