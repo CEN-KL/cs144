@@ -211,7 +211,7 @@ void TCPSender::retransmit() {
     start_timer();
 }
 
-void TCPSender::send_segment(TCPSegment seg) {
+void TCPSender::send_segment(TCPSegment& seg) {
     // cout << "sending segment..." << endl;
     seg.header().seqno = wrap(_next_seqno, _isn);
     _next_seqno += seg.length_in_sequence_space();
@@ -227,13 +227,14 @@ void TCPSender::send_segment(TCPSegment seg) {
 
 bool TCPSender::is_ack_valid(uint64_t ack) {
     if (_outstanding.empty()) {
-        return false;
+        // 如果没有outstanding segs，那么收到的ack只有<= 期望的下一个序号才是有效的
+        if (ack > _next_seqno)
+            return false;
+        else 
+            return true;
     }
     uint64_t lower = unwrap(_outstanding.front().header().seqno, _isn, _next_seqno);
-    if (ack < lower) {
-        return false;
-    }
-    if (ack > _next_seqno) {
+    if (ack < lower || ack > _next_seqno) {
         return false;
     }
     return true;

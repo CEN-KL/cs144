@@ -21,6 +21,23 @@ class TCPConnection {
     //! in case the remote TCPConnection doesn't know we've received its whole stream?
     bool _linger_after_streams_finish{true};
 
+    // members added by myself
+    size_t _time_since_last_segment_received{0};
+    bool _active{true};
+
+    // methods added by myself
+    void send_rst();
+    void close_connection();
+    //! \returns the number sent segments
+    size_t send_segments();
+    void set_ackno_window(TCPSegment& seg);
+    // Prereq #1 The inbound stream has been fully assembled and has ended.
+    bool check_inbound();
+    // Prereq #2 The outbound stream has been ended by the local application and fully sent 
+    // (including the fact that it ended, i.e. a segment with fin ) to the remote peer.
+    // Prereq #3 The outbound stream has been fully acknowledged by the remote peer.
+    bool check_outbound();
+
   public:
     //! \name "Input" interface for the writer
     //!@{

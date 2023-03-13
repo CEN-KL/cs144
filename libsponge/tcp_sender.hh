@@ -66,7 +66,7 @@ class TCPSender {
 
     void retransmit();
 
-    void send_segment(TCPSegment seg);
+    void send_segment(TCPSegment& seg);
 
     bool is_ack_valid(uint64_t ack);
 
