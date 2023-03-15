@@ -17,7 +17,7 @@ void get_URL(const string &host, const string &path) {
     // (not just one call to read() -- everything) until you reach
     // the "eof" (end of file).
 
-    CS144TCPSocket socket;
+    FullStackSocket socket;
     socket.connect(Address(host, "http"));
     std::string message;
     message += "GET " + path + " HTTP/1.1\r\n";
@@ -28,10 +28,10 @@ void get_URL(const string &host, const string &path) {
         std::cout << socket.read();
     }
     socket.close();
+    socket.wait_until_closed();
 
     cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
     cerr << "Warning: get_URL() has not been implemented yet.\n";
-    socket.wait_until_closed();
 }
 
 int main(int argc, char *argv[]) {
